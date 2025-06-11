@@ -88,17 +88,23 @@ elif echo "$PVCUT" | grep -q "Driver=cdc_ether"; then
   PROTO="ecm"
 fi
 
-# ✅ In ra JSON hợp lệ
+# ✅ Ghép JSON vào biến và làm sạch toàn bộ
+JSON=$(cat <<EOF
+{
+  "mode": "$(json_safe "$MODE")",
+  "temp": "$(json_safe "$TEMP")",
+  "rssi": "$(json_safe "$RSSI")",
+  "rsrp": "$(json_safe "$RSRP")",
+  "rsrq": "$(json_safe "$RSRQ")",
+  "sinr": "$(json_safe "$SINR")",
+  "proto": "$(json_safe "$PROTO")",
+  "tac_hex": "$(json_safe "$T_HEX")",
+  "tac_dec": "$(json_safe "$T_DEC")"
+}
+EOF
+)
+
+# ✅ In ra kết quả, đã loại bỏ mọi ký tự điều khiển tiềm ẩn
 echo "Content-Type: application/json"
 echo ""
-echo "{"
-echo "  \"mode\": \"$(json_safe "$MODE")\","
-echo "  \"temp\": \"$(json_safe "$TEMP")\","
-echo "  \"rssi\": \"$(json_safe "$RSSI")\","
-echo "  \"rsrp\": \"$(json_safe "$RSRP")\","
-echo "  \"rsrq\": \"$(json_safe "$RSRQ")\","
-echo "  \"sinr\": \"$(json_safe "$SINR")\","
-echo "  \"proto\": \"$(json_safe "$PROTO")\","
-echo "  \"tac_hex\": \"$(json_safe "$T_HEX")\","
-echo "  \"tac_dec\": \"$(json_safe "$T_DEC")\""
-echo "}"
+echo "$JSON" | tr -d '\000-\037'
